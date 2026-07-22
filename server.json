@@ -1,0 +1,18 @@
+{
+  "$schema": "https://modelcontextprotocol.io/schemas/server.json",
+  "name": "pl-holidays-mcp",
+  "description": "Local MCP server for Polish public holidays and business-day math.",
+  "repository": {
+    "url": "https://github.com/bartosz-kuc/pl-holidays-mcp",
+    "source": "github"
+  },
+  "version": "0.1.0",
+  "packages": [
+    {
+      "registry_name": "pypi",
+      "name": "pl-holidays-mcp",
+      "version": "0.1.0",
+      "runtime_hint": "uvx"
+    }
+  ]
+}
