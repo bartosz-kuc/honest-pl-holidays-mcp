@@ -25,9 +25,10 @@ from functools import lru_cache
 from typing import Any
 
 import requests
+from mcp import types
 from mcp.server import Server
 from mcp.server.stdio import stdio_server
-from mcp.types import TextContent, Tool
+from mcp.types import CallToolResult, ListToolsResult, TextContent, Tool
 
 NAGER_BASE = "https://date.nager.at/api/v3"
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
@@ -59,8 +60,7 @@ def _is_business_day(d: date, country: str = "PL") -> bool:
 server = Server("pl-holidays")
 
 
-@server.list_tools()
-async def list_tools() -> list[Tool]:
+async def _list_tools() -> list[Tool]:
     return [
         Tool(
             name="list_holidays",
@@ -152,8 +152,7 @@ async def list_tools() -> list[Tool]:
     ]
 
 
-@server.call_tool()
-async def call_tool(name: str, arguments: dict[str, Any]) -> list[TextContent]:
+async def _call_tool(name: str, arguments: dict[str, Any]) -> list[TextContent]:
     country = arguments.get("country", "PL").upper()
 
     if name == "list_holidays":
@@ -243,6 +242,18 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> list[TextContent]:
         return [TextContent(type="text", text=json.dumps({"from_date": d.isoformat(), "country": country, "count": len(collected), "holidays": collected}, ensure_ascii=False, indent=2))]
 
     raise ValueError(f"Unknown tool: {name}")
+
+
+async def on_list_tools(ctx, params) -> ListToolsResult:
+    return ListToolsResult(tools=await _list_tools())
+
+
+async def on_call_tool(ctx, params) -> CallToolResult:
+    return CallToolResult(content=await _call_tool(params.name, params.arguments or {}))
+
+
+server.add_request_handler("tools/list", types.PaginatedRequestParams, on_list_tools)
+server.add_request_handler("tools/call", types.CallToolRequestParams, on_call_tool)
 
 
 async def main():
