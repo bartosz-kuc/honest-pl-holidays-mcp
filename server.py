@@ -25,7 +25,6 @@ from functools import lru_cache
 from typing import Any
 
 import requests
-
 from mcp.server import Server
 from mcp.server.stdio import stdio_server
 from mcp.types import TextContent, Tool
@@ -54,9 +53,7 @@ def _holiday_dates(year: int, country: str = "PL") -> set[date]:
 def _is_business_day(d: date, country: str = "PL") -> bool:
     if d.weekday() >= 5:
         return False
-    if d in _holiday_dates(d.year, country):
-        return False
-    return True
+    return d not in _holiday_dates(d.year, country)
 
 
 server = Server("pl-holidays")
@@ -230,7 +227,7 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> list[TextContent]:
 
     if name == "next_holidays":
         from_str = arguments.get("from_date")
-        d = _parse_date(from_str) if from_str else date.today()
+        d = _parse_date(from_str) if from_str else date.today()  # noqa: DTZ011
         count = int(arguments.get("count", 5))
         collected: list[dict] = []
         year = d.year
