@@ -3,7 +3,7 @@
   "name": "pl-holidays-mcp",
   "description": "Local MCP server for Polish public holidays and business-day math.",
   "repository": {
-    "url": "https://github.com/bartosz-kuc/pl-holidays-mcp",
+    "url": "https://github.com/bartosz-kuc/honest-pl-holidays-mcp",
     "source": "github"
   },
   "version": "0.1.0",

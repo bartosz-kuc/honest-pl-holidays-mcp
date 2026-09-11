@@ -13,7 +13,7 @@ Tools: list_holidays, is_holiday, is_business_day, count_business_days,
 add_business_days, next_holidays.
 
 Author: Bartosz Kuć <firma@bartosza.pl>
-Repo:   https://github.com/bartosz-kuc/pl-holidays-mcp
+Repo:   https://github.com/bartosz-kuc/honest-pl-holidays-mcp
 License: MIT
 """
 

@@ -41,7 +41,7 @@ Six tools:
 ## Setup
 
 ```bash
-git clone https://github.com/bartosz-kuc/pl-holidays-mcp.git
+git clone https://github.com/bartosz-kuc/honest-pl-holidays-mcp.git
 cd pl-holidays-mcp
 python3 -m venv venv
 ./venv/bin/pip install -r requirements.txt
