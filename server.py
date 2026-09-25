@@ -2,8 +2,9 @@
 
 Wraps https://date.nager.at/api/v3/ — Nager.Date's open holiday database
 (no auth, MIT-licensed data) — and adds Polish-specific business-day logic
-on top: is_business_day(), count_business_days_between(), and
-add_business_days().
+on top: is_business_day(), count_business_days(), and add_business_days().
+The weekend is always Saturday + Sunday, whatever `country` is passed; only
+the holiday list depends on the country.
 
 Primary use case: Polish JDG bookkeeping — invoice payment terms are
 counted in business days ("14 dni roboczych"), VAT return deadlines shift
@@ -52,6 +53,7 @@ def _holiday_dates(year: int, country: str = "PL") -> set[date]:
 
 
 def _is_business_day(d: date, country: str = "PL") -> bool:
+    # Weekend is hard-coded to Saturday/Sunday for every country.
     if d.weekday() >= 5:
         return False
     return d not in _holiday_dates(d.year, country)
@@ -84,7 +86,7 @@ async def _list_tools() -> list[Tool]:
                 "type": "object",
                 "properties": {
                     "date": {"type": "string", "description": "YYYY-MM-DD"},
-                    "country": {"type": "string", "default": "PL"},
+                    "country": {"type": "string", "default": "PL", "description": "ISO 3166-1 alpha-2 country code (default PL)"},
                 },
                 "required": ["date"],
             },
@@ -93,13 +95,15 @@ async def _list_tools() -> list[Tool]:
             name="is_business_day",
             description=(
                 "Check whether a date is a Polish business day — Monday–Friday and not a public holiday. "
-                "Returns the answer plus the reason (weekend / holiday / business_day)."
+                "Returns the answer plus the reason (weekend / holiday / business_day). "
+                "The weekend is always Saturday + Sunday, whatever `country` is passed; only the holiday list "
+                "changes per country, so results are wrong for countries with a different weekend."
             ),
             inputSchema={
                 "type": "object",
                 "properties": {
                     "date": {"type": "string", "description": "YYYY-MM-DD"},
-                    "country": {"type": "string", "default": "PL"},
+                    "country": {"type": "string", "default": "PL", "description": "ISO 3166-1 alpha-2 country code for the holiday list (default PL); does not change the Sat/Sun weekend"},
                 },
                 "required": ["date"],
             },
@@ -108,14 +112,16 @@ async def _list_tools() -> list[Tool]:
             name="count_business_days",
             description=(
                 "Count business days between two dates (inclusive), skipping weekends and Polish public holidays. "
-                "Useful for enforcing '14-dni-roboczych' style payment terms."
+                "Useful for enforcing '14-dni-roboczych' style payment terms. "
+                "The weekend is always Saturday + Sunday, whatever `country` is passed; only the holiday list "
+                "changes per country."
             ),
             inputSchema={
                 "type": "object",
                 "properties": {
                     "from_date": {"type": "string", "description": "YYYY-MM-DD (inclusive)"},
                     "to_date": {"type": "string", "description": "YYYY-MM-DD (inclusive)"},
-                    "country": {"type": "string", "default": "PL"},
+                    "country": {"type": "string", "default": "PL", "description": "ISO 3166-1 alpha-2 country code for the holiday list (default PL); does not change the Sat/Sun weekend"},
                 },
                 "required": ["from_date", "to_date"],
             },
@@ -125,14 +131,16 @@ async def _list_tools() -> list[Tool]:
             description=(
                 "Add N business days to a start date and return the resulting date. N can be negative to subtract. "
                 "Skips weekends and Polish public holidays. If start_date is itself a non-business day, counting starts "
-                "from the next business day."
+                "from the next business day (the previous one when N is negative). "
+                "The weekend is always Saturday + Sunday, whatever `country` is passed; only the holiday list "
+                "changes per country."
             ),
             inputSchema={
                 "type": "object",
                 "properties": {
                     "start_date": {"type": "string", "description": "YYYY-MM-DD"},
                     "days": {"type": "integer", "description": "Number of business days to add (negative to subtract)"},
-                    "country": {"type": "string", "default": "PL"},
+                    "country": {"type": "string", "default": "PL", "description": "ISO 3166-1 alpha-2 country code for the holiday list (default PL); does not change the Sat/Sun weekend"},
                 },
                 "required": ["start_date", "days"],
             },
@@ -145,7 +153,7 @@ async def _list_tools() -> list[Tool]:
                 "properties": {
                     "from_date": {"type": "string", "description": "YYYY-MM-DD, defaults to today"},
                     "count": {"type": "integer", "default": 5, "description": "How many upcoming holidays to return"},
-                    "country": {"type": "string", "default": "PL"},
+                    "country": {"type": "string", "default": "PL", "description": "ISO 3166-1 alpha-2 country code (default PL)"},
                 },
             },
         ),

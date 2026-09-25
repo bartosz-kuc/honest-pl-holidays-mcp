@@ -1,4 +1,4 @@
-# pl-holidays-mcp
+# honest-pl-holidays-mcp
 
 Local MCP server for **Polish public holidays and business-day arithmetic**. Wraps the open [Nager.Date](https://date.nager.at/) holiday database and adds bookkeeping-friendly business-day math on top.
 
@@ -9,12 +9,14 @@ Part of the [honest-mcp family](https://github.com/bartosz-kuc?tab=repositories)
 Every Polish accountant, JDG owner, or HR person has this problem:
 
 - "Payment term is **14 dni roboczych** from invoice date — what's the actual due date?"
-- "Is the client's 'termin płatności 2026-05-01' the same as `next_business_day(2026-05-01)`? (No — that's Święto Pracy.)"
+- "Is the client's 'termin płatności 2026-05-01' even a business day? (No — that's Święto Pracy.)"
 - "Deadline for JPK_V7 is the 25th — but 2026-04-25 is a Saturday, does it slip to Monday?"
 
 This server hands both raw holiday data and business-day arithmetic to your AI. No more spreadsheet calendars.
 
-Supports any country Nager.Date covers (110+), but the API defaults to Poland and the bookkeeping angle is Poland-centric.
+Supports any country Nager.Date covers (200+), but the API defaults to Poland and the bookkeeping angle is Poland-centric.
+
+**Weekend caveat:** the weekend is always Saturday + Sunday, whatever `country` you pass — only the holiday list changes per country. Business-day results for countries with a different weekend (e.g. Friday–Saturday in Egypt) will be wrong.
 
 ## Features
 
@@ -32,7 +34,7 @@ Six tools:
 - Endpoint: [date.nager.at/api/v3](https://date.nager.at/)
 - No API key
 - MIT-licensed holiday data
-- In-memory year cache — one round trip per year per session
+- In-memory cache per year and country — normally one round trip per year and country per session
 
 ## Requirements
 
@@ -42,10 +44,12 @@ Six tools:
 
 ```bash
 git clone https://github.com/bartosz-kuc/honest-pl-holidays-mcp.git
-cd pl-holidays-mcp
+cd honest-pl-holidays-mcp
 python3 -m venv venv
 ./venv/bin/pip install -r requirements.txt
 ```
+
+On Windows, use `venv\Scripts\pip` and `venv\Scripts\python` instead of `venv/bin/pip` and `venv/bin/python` (here and in the configs below).
 
 Register with Claude Code:
 
